@@ -1,7 +1,7 @@
 {
   lib,
   buildHomeAssistantComponent,
-  openai,
+  home-assistant,
 }:
 
 buildHomeAssistantComponent rec {
@@ -13,21 +13,27 @@ buildHomeAssistantComponent rec {
     src = ../.;
     filter =
       path: type:
-      let
-        rel = lib.removePrefix "${toString ../.}/" (toString path);
-      in
-      rel == "custom_components"
-      || rel == "custom_components/${domain}"
-      || lib.hasPrefix "custom_components/${domain}/" rel;
+      lib.cleanSourceFilter path type
+      &&
+        let
+          root = toString ../.;
+          pathStr = toString path;
+          rel = lib.removePrefix "${root}/" pathStr;
+        in
+        pathStr == root
+        || rel == "custom_components"
+        || rel == "custom_components/${domain}"
+        || lib.hasPrefix "custom_components/${domain}/" rel;
   };
 
-  dependencies = [
+  dependencies = with home-assistant.python.pkgs; [
     openai
   ];
 
   meta = {
     description = "OpenAI Codex conversation agent for Home Assistant";
-    homepage = "https://github.com/aaa4xu/home-assistant-openai-codex";
+    homepage = "https://github.com/${owner}/home-assistant-openai-codex";
     license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
   };
 }
