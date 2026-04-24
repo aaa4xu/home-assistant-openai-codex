@@ -1,0 +1,67 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Аккаунт уже настроен",
+      "cannot_connect": "Не удалось подключиться к авторизации OpenAI",
+      "missing_account_identity": "Авторизация OpenAI не вернула стабильный идентификатор аккаунта",
+      "reauth_successful": "Повторная авторизация выполнена",
+      "wrong_account": "Авторизованный аккаунт ChatGPT не совпадает с этой записью интеграции"
+    },
+    "error": {
+      "unknown": "Неожиданная ошибка"
+    },
+    "progress": {
+      "wait_for_authorization": "Ожидание завершения авторизации ChatGPT."
+    },
+    "step": {
+      "connection_error": {
+        "description": "Авторизация OpenAI Codex не удалась. Нажмите «Отправить», чтобы попробовать снова.",
+        "title": "Ошибка подключения"
+      },
+      "reauth_confirm": {
+        "description": "Требуется повторная авторизация. Нажмите «Отправить», чтобы начать авторизацию ChatGPT через код устройства.",
+        "title": "Повторная авторизация OpenAI Codex"
+      },
+      "timeout": {
+        "description": "Код устройства истек. Нажмите «Отправить», чтобы получить новый код.",
+        "title": "Код устройства истек"
+      },
+      "user": {
+        "description": "Откройте этот URL в браузере:\n\n{verification_url}\n\nВведите одноразовый код:\n\n```{user_code}```\n\nПосле подтверждения доступа вернитесь сюда и нажмите «Отправить».",
+        "title": "Авторизация ChatGPT"
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "model_catalog_unavailable": "Не удалось загрузить каталог моделей Codex",
+      "model_not_available": "Выбранной модели нет в каталоге моделей Codex",
+      "reauth_required": "Нужна повторная авторизация перед загрузкой каталога моделей Codex"
+    },
+    "step": {
+      "capabilities": {
+        "data": {
+          "fast_mode": "Быстрый режим",
+          "llm_hass_api": "LLM API Home Assistant",
+          "prompt": "Инструкции",
+          "reasoning_effort": "Бюджет рассуждения",
+          "web_search": "Поиск в интернете"
+        },
+        "description": "Выберите параметры, поддерживаемые выбранной моделью Codex.",
+        "title": "Настройки OpenAI Codex"
+      },
+      "init": {
+        "data": {
+          "chat_model": "Модель",
+          "fast_mode": "Быстрый режим",
+          "llm_hass_api": "LLM API Home Assistant",
+          "prompt": "Инструкции",
+          "reasoning_effort": "Бюджет рассуждения",
+          "web_search": "Поиск в интернете"
+        },
+        "description": "Выберите модель Codex и поддерживаемые ей параметры.",
+        "title": "Настройки OpenAI Codex"
+      }
+    }
+  }
+}

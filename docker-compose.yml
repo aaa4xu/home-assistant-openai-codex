@@ -1,0 +1,12 @@
+services:
+  homeassistant:
+    container_name: ha-openai-codex-test
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./ha-config:/config
+      - ./custom_components:/config/custom_components
+    environment:
+      TZ: Europe/Moscow
+    restart: unless-stopped

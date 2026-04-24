@@ -1,0 +1,67 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Account is already configured",
+      "cannot_connect": "Could not connect to OpenAI authentication",
+      "missing_account_identity": "OpenAI authentication did not return a stable account identity",
+      "reauth_successful": "Reauthentication successful",
+      "wrong_account": "The authenticated ChatGPT account does not match this integration entry"
+    },
+    "error": {
+      "unknown": "Unexpected error"
+    },
+    "progress": {
+      "wait_for_authorization": "Waiting for ChatGPT device authorization to finish."
+    },
+    "step": {
+      "connection_error": {
+        "description": "OpenAI Codex authorization failed. Submit to try again.",
+        "title": "Connection error"
+      },
+      "reauth_confirm": {
+        "description": "Reauthentication is required. Submit to start ChatGPT device-code authorization.",
+        "title": "Reauthenticate OpenAI Codex"
+      },
+      "timeout": {
+        "description": "The device code expired. Submit to request a new code.",
+        "title": "Device code expired"
+      },
+      "user": {
+        "description": "Open this URL in your browser:\n\n{verification_url}\n\nEnter this one-time code:\n\n```{user_code}```\n\nAfter approving access, return here and submit this form.",
+        "title": "Authorize ChatGPT"
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "model_catalog_unavailable": "Could not load the Codex model catalog",
+      "model_not_available": "The selected model is not available in the Codex model catalog",
+      "reauth_required": "Reauthentication is required before the Codex model catalog can be loaded"
+    },
+    "step": {
+      "capabilities": {
+        "data": {
+          "fast_mode": "Fast mode",
+          "llm_hass_api": "Home Assistant LLM APIs",
+          "prompt": "Instructions",
+          "reasoning_effort": "Reasoning budget",
+          "web_search": "Live web search"
+        },
+        "description": "Choose the options supported by the selected Codex model.",
+        "title": "OpenAI Codex options"
+      },
+      "init": {
+        "data": {
+          "chat_model": "Model",
+          "fast_mode": "Fast mode",
+          "llm_hass_api": "Home Assistant LLM APIs",
+          "prompt": "Instructions",
+          "reasoning_effort": "Reasoning budget",
+          "web_search": "Live web search"
+        },
+        "description": "Choose the Codex model and the options supported by that model.",
+        "title": "OpenAI Codex options"
+      }
+    }
+  }
+}
