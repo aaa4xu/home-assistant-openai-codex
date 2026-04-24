@@ -1,55 +1,85 @@
-# Home Assistant OpenAI Codex
+# OpenAI Codex for Home Assistant
 
-Custom Home Assistant integration for experimenting with the ChatGPT Codex
-backend inside a local Home Assistant development environment.
+Custom Home Assistant integration that connects Home Assistant Assist to the
+ChatGPT Codex backend.
+
+The integration adds a conversation agent powered by Codex models and can expose
+Home Assistant LLM tools to the model, allowing Assist to answer questions and
+control Home Assistant entities through the standard Assist pipeline.
+
+> This project is experimental and unofficial. It is not affiliated with or
+> endorsed by OpenAI or Home Assistant.
 
 ## Features
 
-- Device-code authorization against ChatGPT auth.
-- Conversation entity backed by the Codex Responses endpoint.
-- Home Assistant Assist LLM tool support for device/entity control.
-- Runtime model catalog loading from the Codex `/models` API with Home
-  Assistant-local caching and fallback.
-- Options UI for model selection, reasoning budget, fast mode, and live web
-  search when the selected model supports it.
-- User-facing Codex API error details when the backend returns a readable
-  message.
+- ChatGPT device-code authorization flow.
+- Conversation entity for Home Assistant Assist.
+- Codex-backed responses through the OpenAI Python SDK.
+- Home Assistant LLM API/tool support for entity and device control.
+- Runtime Codex model catalog loading from the Codex `/models` endpoint.
+- Local model catalog cache with stale-cache fallback.
+- Options flow for model selection, reasoning effort, fast mode, custom
+  instructions, Home Assistant LLM APIs, and live web search where supported.
+- English and Russian UI translations.
+- Reauthentication support when ChatGPT tokens expire or become invalid.
 
-## Project Layout
+## Requirements
 
-- `custom_components/openai_codex/` - integration source code.
-- `docker-compose.yml` - local Home Assistant test instance.
-- `ha-config/` - local Home Assistant runtime config, ignored by Git.
-- `.reference/home-assistant-core/` - upstream Home Assistant Core checkout for
-  reference, ignored by Git.
-- `.reference/codex-cli/` - upstream Codex CLI checkout for backend behavior
-  reference, ignored by Git.
-- `specs/` - local implementation notes and specifications.
+- Home Assistant with custom integrations enabled.
+- A ChatGPT account that has access to Codex.
+- Network access from Home Assistant to ChatGPT/OpenAI services.
+
+## Installation
+
+### Manual
+
+1. Copy `custom_components/openai_codex` into the `custom_components` directory
+   of your Home Assistant configuration.
+2. Restart Home Assistant.
+3. Go to **Settings** -> **Devices & services** -> **Add integration**.
+4. Search for **OpenAI Codex** and start the setup flow.
+5. Open the displayed ChatGPT authorization URL, enter the device code, approve
+   access, then return to Home Assistant and submit the form.
+
+After setup, select the **OpenAI Codex** conversation agent in Home Assistant
+Assist or use it from any Assist pipeline that supports conversation agents.
+
+## Configuration
+
+The integration options are available from the integration's **Configure** menu.
+
+Available options depend on the selected Codex model and may include:
+
+- Model
+- Reasoning effort
+- Fast mode
+- Live web search
+- Home Assistant LLM APIs
+- Custom instructions
+
+## Notes
+
+Codex backend APIs and model metadata can change. This integration loads the
+model catalog at runtime and keeps a local cache so Home Assistant can continue
+using the last known usable model list if a temporary catalog request fails.
+
+Because this integration can expose Home Assistant control tools to a remote
+model, review the selected Home Assistant LLM APIs and instructions before using
+it with sensitive devices or automations.
 
 ## Development
 
-Start the local test instance:
+Start a local Home Assistant test instance:
 
 ```sh
 docker compose up -d
 ```
 
-Open Home Assistant at http://localhost:8123.
+Open Home Assistant at:
 
-Local test credentials:
-
-- Username: `aaa4xu`
-- Password: `12345678`
-- Long-lived access token:
-  `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmMTJjZDA2MDg0MzI0YjU0OTAyYWNhODNmMjIxMGE0MyIsImlhdCI6MTc3Njg0ODc3MCwiZXhwIjoyMDkyMjA4NzcwfQ.2dKo2uofpNE38xnA0lpjBz-BjvZYYeGYgzn0xwTJ23Y`
-
-Stop it when needed:
-
-```sh
-docker compose down
+```text
+http://localhost:8123
 ```
-
-These credentials are for this local test instance only.
 
 Run quick local checks:
 
@@ -59,7 +89,7 @@ jq empty custom_components/openai_codex/translations/en.json custom_components/o
 git diff --check
 ```
 
-Run the same Python syntax check inside the Home Assistant container:
+Run the Python syntax check inside the Home Assistant container:
 
 ```sh
 docker compose exec -T homeassistant sh -c 'python -m py_compile /config/custom_components/openai_codex/*.py'
@@ -69,4 +99,10 @@ Restart the test instance after integration changes:
 
 ```sh
 docker compose restart homeassistant
+```
+
+Stop the test instance:
+
+```sh
+docker compose down
 ```
