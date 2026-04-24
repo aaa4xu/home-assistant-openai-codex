@@ -14,7 +14,7 @@ buildHomeAssistantComponent rec {
     filter =
       path: type:
       lib.cleanSourceFilter path type
-      &&
+      && (
         let
           root = toString ../.;
           pathStr = toString path;
@@ -23,7 +23,8 @@ buildHomeAssistantComponent rec {
         pathStr == root
         || rel == "custom_components"
         || rel == "custom_components/${domain}"
-        || lib.hasPrefix "custom_components/${domain}/" rel;
+        || lib.hasPrefix "custom_components/${domain}/" rel
+      );
   };
 
   dependencies = with home-assistant.python.pkgs; [
