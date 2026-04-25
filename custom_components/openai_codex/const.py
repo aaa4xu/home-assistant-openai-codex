@@ -19,15 +19,18 @@ CONF_LAST_REFRESH = "last_refresh"
 CONF_PROMPT = "prompt"
 CONF_REASONING_EFFORT = "reasoning_effort"
 CONF_REFRESH_TOKEN = "refresh_token"
+CONF_STT_MODEL = "stt_model"
 CONF_TTS_VOICE = "tts_voice"
 CONF_USER_ID = "chatgpt_user_id"
 CONF_WEB_SEARCH = "web_search"
 
 DEFAULT_NAME = "OpenAI Codex"
+DEFAULT_STT_NAME = "OpenAI Codex STT"
 DEFAULT_TTS_NAME = "OpenAI Codex TTS"
 RECOMMENDED_CHAT_MODEL = "gpt-5.4"
 RECOMMENDED_FAST_MODE = False
 RECOMMENDED_REASONING_EFFORT = "medium"
+RECOMMENDED_STT_MODEL = "gpt-4o-mini-transcribe"
 RECOMMENDED_WEB_SEARCH = False
 CODEX_FAST_SERVICE_TIER = "priority"
 CODEX_MODELS_CLIENT_VERSION = "0.124.0"
@@ -110,6 +113,66 @@ CODEX_TTS_VOICES = (
     "cedar",
 )
 CODEX_TTS_SUPPORTED_OPTIONS = ("voice",)
+
+CODEX_STT_SUPPORTED_LANGUAGES = (
+    "af-ZA",
+    "ar-SA",
+    "hy-AM",
+    "az-AZ",
+    "be-BY",
+    "bs-BA",
+    "bg-BG",
+    "ca-ES",
+    "zh-CN",
+    "hr-HR",
+    "cs-CZ",
+    "da-DK",
+    "nl-NL",
+    "en-US",
+    "et-EE",
+    "fi-FI",
+    "fr-FR",
+    "gl-ES",
+    "de-DE",
+    "el-GR",
+    "he-IL",
+    "hi-IN",
+    "hu-HU",
+    "is-IS",
+    "id-ID",
+    "it-IT",
+    "ja-JP",
+    "kn-IN",
+    "kk-KZ",
+    "ko-KR",
+    "lv-LV",
+    "lt-LT",
+    "mk-MK",
+    "ms-MY",
+    "mr-IN",
+    "mi-NZ",
+    "ne-NP",
+    "no-NO",
+    "fa-IR",
+    "pl-PL",
+    "pt-PT",
+    "ro-RO",
+    "ru-RU",
+    "sr-RS",
+    "sk-SK",
+    "sl-SI",
+    "es-ES",
+    "sw-KE",
+    "sv-SE",
+    "fil-PH",
+    "ta-IN",
+    "th-TH",
+    "tr-TR",
+    "uk-UA",
+    "ur-PK",
+    "vi-VN",
+    "cy-GB",
+)
 
 USER_AGENT = "home-assistant-openai-codex/0.1"
 ORIGINATOR = "homeassistant_openai_codex"
