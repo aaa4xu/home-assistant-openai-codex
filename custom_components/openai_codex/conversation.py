@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .client import OpenAICodexConfigEntry
-from .const import CONF_PROMPT, DOMAIN, EVENT_TTS_PREWARM
+from .const import CONF_PROMPT, DOMAIN
 from .entity import OpenAICodexBaseLLMEntity
 
 
@@ -61,10 +61,6 @@ class OpenAICodexConversationEntity(
         chat_log: conversation.ChatLog,
     ) -> conversation.ConversationResult:
         """Process user input through Codex."""
-        self.hass.bus.async_fire(
-            EVENT_TTS_PREWARM,
-            {"entry_id": self.entry.entry_id},
-        )
         try:
             await chat_log.async_provide_llm_data(
                 user_input.as_llm_context(DOMAIN),

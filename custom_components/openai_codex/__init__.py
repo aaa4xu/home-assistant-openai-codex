@@ -14,7 +14,7 @@ from .client import (
 )
 from .const import DOMAIN, RECOMMENDED_CHAT_MODEL
 
-PLATFORMS = (Platform.CONVERSATION, Platform.STT, Platform.TTS)
+PLATFORMS = (Platform.CONVERSATION, Platform.STT)
 
 
 async def async_setup_entry(

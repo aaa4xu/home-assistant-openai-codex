@@ -29,7 +29,6 @@ from .const import (
     CODEX_REALTIME_SAMPLE_WIDTH_BYTES,
     CODEX_STT_SUPPORTED_LANGUAGES,
     DEFAULT_STT_NAME,
-    EVENT_TTS_PREWARM,
     LOGGER,
     RECOMMENDED_STT_MODEL,
 )
@@ -98,10 +97,6 @@ class OpenAICodexSTTEntity(stt.SpeechToTextEntity, OpenAICodexBaseEntity):
         stream: AsyncIterable[bytes],
     ) -> stt.SpeechResult:
         """Process an audio stream through Codex realtime transcription."""
-        self.hass.bus.async_fire(
-            EVENT_TTS_PREWARM,
-            {"entry_id": self.entry.entry_id},
-        )
         if not self.check_metadata(metadata):
             LOGGER.warning(
                 "Codex STT received unsupported audio metadata: %s",

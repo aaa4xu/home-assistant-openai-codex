@@ -4,7 +4,7 @@
   "after_dependencies": ["assist_pipeline", "intent"],
   "codeowners": [],
   "config_flow": true,
-  "dependencies": ["conversation", "stt", "tts"],
+  "dependencies": ["conversation", "stt"],
   "documentation": "https://github.com/aaa4xu/home-assistant-openai-codex",
   "integration_type": "service",
   "iot_class": "cloud_polling",
