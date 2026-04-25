@@ -6,14 +6,18 @@ import asyncio
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+import json
 from typing import Any
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
+import aiohttp
 import httpx
 import openai
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.helpers.storage import Store
 
@@ -28,6 +32,9 @@ from .auth import (
 from .const import (
     CODEX_BACKEND_BASE_URL,
     CODEX_MODELS_CLIENT_VERSION,
+    CODEX_REALTIME_BASE_URL,
+    CODEX_REALTIME_CALLS_PATH,
+    CODEX_REALTIME_WS_PATH,
     CONF_ACCESS_TOKEN,
     CONF_ACCOUNT_ID,
     CONF_ACCOUNT_IS_FEDRAMP,
@@ -53,6 +60,8 @@ MODELS_CACHE_SCHEMA_VERSION = 4
 MODELS_CACHE_STORAGE_VERSION = 1
 MODELS_CACHE_TTL = timedelta(minutes=5)
 MODELS_REQUEST_TIMEOUT = 5.0
+REALTIME_CALL_REQUEST_TIMEOUT = 15.0
+REALTIME_SIDEBAND_CONNECT_TIMEOUT = 15.0
 AUTH_DATA_KEYS = {
     CONF_ID_TOKEN,
     CONF_ACCESS_TOKEN,
@@ -264,6 +273,14 @@ class CodexResolvedOptions:
     options: dict[str, Any]
 
 
+@dataclass(slots=True, frozen=True)
+class CodexRealtimeCall:
+    """Answer SDP and call id returned by Codex realtime call creation."""
+
+    answer_sdp: str
+    call_id: str
+
+
 class OpenAICodexRuntime:
     """Runtime holder for auth state and the OpenAI SDK client."""
 
@@ -324,6 +341,123 @@ class OpenAICodexRuntime:
             await self.async_refresh_tokens()
             client = await self.async_get_client()
             return await client.responses.create(**kwargs)
+
+    async def async_codex_headers(
+        self, *, include_auth: bool = True
+    ) -> dict[str, str]:
+        """Return Codex backend headers after refreshing tokens if needed."""
+        if include_auth and token_refresh_needed(self.token_data):
+            await self.async_refresh_tokens(force=False)
+        return self._request_headers(include_auth=include_auth)
+
+    async def async_create_realtime_call(
+        self,
+        offer_sdp: str,
+        session: Mapping[str, Any],
+    ) -> CodexRealtimeCall:
+        """POST a WebRTC offer and realtime session to the Codex backend."""
+        return await self._async_create_realtime_call_with_refresh(
+            offer_sdp,
+            session,
+            retry_auth=True,
+        )
+
+    async def _async_create_realtime_call_with_refresh(
+        self,
+        offer_sdp: str,
+        session: Mapping[str, Any],
+        *,
+        retry_auth: bool,
+    ) -> CodexRealtimeCall:
+        """Create a realtime call, refreshing auth once after a 401."""
+        headers = await self.async_codex_headers(include_auth=True)
+        http_client = get_async_client(self.hass)
+        files = _realtime_call_multipart_files(offer_sdp, session)
+
+        try:
+            response = await http_client.post(
+                f"{CODEX_REALTIME_BASE_URL}/{CODEX_REALTIME_CALLS_PATH}",
+                files=files,
+                headers=headers,
+                timeout=REALTIME_CALL_REQUEST_TIMEOUT,
+            )
+        except httpx.HTTPError as err:
+            raise HomeAssistantError(
+                f"Codex realtime call request failed: {err}"
+            ) from err
+
+        if response.status_code == 401:
+            if retry_auth:
+                await self.async_refresh_tokens()
+                return await self._async_create_realtime_call_with_refresh(
+                    offer_sdp,
+                    session,
+                    retry_auth=False,
+                )
+            raise ConfigEntryAuthFailed("Codex realtime call auth was rejected")
+
+        if response.status_code >= 400:
+            LOGGER.warning(
+                "Codex realtime call request failed with status %s: %s",
+                response.status_code,
+                response.text[:256],
+            )
+            raise HomeAssistantError(
+                f"Codex realtime call request failed with status {response.status_code}"
+            )
+
+        answer_sdp = response.text
+        if not answer_sdp:
+            raise HomeAssistantError("Codex realtime call response was missing SDP")
+        call_id = _realtime_call_id_from_location(response.headers.get("Location"))
+        return CodexRealtimeCall(
+            answer_sdp=answer_sdp,
+            call_id=call_id,
+        )
+
+    async def async_connect_realtime_sideband(
+        self,
+        call_id: str,
+    ) -> aiohttp.ClientWebSocketResponse:
+        """Open the Codex realtime sideband websocket."""
+        return await self._async_connect_realtime_sideband_with_refresh(
+            call_id,
+            retry_auth=True,
+        )
+
+    async def _async_connect_realtime_sideband_with_refresh(
+        self,
+        call_id: str,
+        *,
+        retry_auth: bool,
+    ) -> aiohttp.ClientWebSocketResponse:
+        """Open the realtime sideband websocket, refreshing once after auth failure."""
+        headers = await self.async_codex_headers(include_auth=True)
+        session = async_get_clientsession(self.hass)
+        try:
+            return await session.ws_connect(
+                _realtime_sideband_url(call_id),
+                headers=headers,
+                timeout=REALTIME_SIDEBAND_CONNECT_TIMEOUT,
+            )
+        except aiohttp.WSServerHandshakeError as err:
+            if err.status == 401:
+                if retry_auth:
+                    await self.async_refresh_tokens()
+                    return await self._async_connect_realtime_sideband_with_refresh(
+                        call_id,
+                        retry_auth=False,
+                    )
+                raise ConfigEntryAuthFailed(
+                    "Codex realtime sideband auth was rejected"
+                ) from err
+            raise HomeAssistantError(
+                f"Codex realtime sideband websocket failed with status {err.status}"
+            ) from err
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise HomeAssistantError(
+                f"Codex realtime sideband websocket failed: {err}"
+            ) from err
 
     async def async_get_models(
         self,
@@ -518,6 +652,45 @@ def configured_chat_model(options: Mapping[str, Any]) -> str | None:
     if not isinstance(selected_model, str) or not selected_model:
         return None
     return selected_model
+
+
+def _realtime_call_id_from_location(location: str | None) -> str:
+    """Extract a Codex rtc_ call id from a realtime call Location header."""
+    if not location:
+        raise HomeAssistantError("Codex realtime call response was missing Location")
+    path = location.split("?", 1)[0]
+    for segment in reversed(path.split("/")):
+        if segment.startswith("rtc_") and len(segment) > len("rtc_"):
+            return segment
+    raise HomeAssistantError(
+        f"Codex realtime call Location did not contain a call id: {location}"
+    )
+
+
+def _realtime_call_multipart_files(
+    offer_sdp: str,
+    session: Mapping[str, Any],
+) -> dict[str, tuple[None, str, str]]:
+    """Return multipart fields matching Codex realtime call creation."""
+    return {
+        "sdp": (None, offer_sdp, "application/sdp"),
+        "session": (
+            None,
+            json.dumps(dict(session), separators=(",", ":")),
+            "application/json",
+        ),
+    }
+
+
+def _realtime_sideband_url(
+    call_id: str,
+) -> str:
+    """Return websocket URL for a Codex realtime sideband call."""
+    parts = urlsplit(CODEX_REALTIME_BASE_URL)
+    scheme = "wss" if parts.scheme == "https" else "ws"
+    path = f"{parts.path.rstrip('/')}/{CODEX_REALTIME_WS_PATH}"
+    query = urlencode({"call_id": call_id})
+    return urlunsplit((scheme, parts.netloc, path, query, ""))
 
 
 def resolve_model_options_from_catalog(

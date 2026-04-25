@@ -381,16 +381,24 @@ async def _transform_stream(
             raise HomeAssistantError(f"Codex response error: {event.message}")
 
 
-class OpenAICodexBaseLLMEntity(Entity):
-    """Base entity for OpenAI Codex conversation entities."""
+class OpenAICodexBaseEntity(Entity):
+    """Base entity for OpenAI Codex entities."""
 
     _attr_has_entity_name = True
-    _attr_name: str | None = None
 
-    def __init__(self, entry: OpenAICodexConfigEntry) -> None:
+    def __init__(
+        self,
+        entry: OpenAICodexConfigEntry,
+        *,
+        unique_id_suffix: str | None = None,
+    ) -> None:
         """Initialize the entity."""
         self.entry = entry
-        self._attr_unique_id = entry.entry_id
+        self._attr_unique_id = (
+            entry.entry_id
+            if unique_id_suffix is None
+            else f"{entry.entry_id}_{unique_id_suffix}"
+        )
         self._attr_device_info = dr.DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
@@ -398,6 +406,16 @@ class OpenAICodexBaseLLMEntity(Entity):
             model=entry.options.get(CONF_CHAT_MODEL, RECOMMENDED_CHAT_MODEL),
             entry_type=dr.DeviceEntryType.SERVICE,
         )
+
+
+class OpenAICodexBaseLLMEntity(OpenAICodexBaseEntity):
+    """Base entity for OpenAI Codex conversation entities."""
+
+    _attr_name: str | None = None
+
+    def __init__(self, entry: OpenAICodexConfigEntry) -> None:
+        """Initialize the entity."""
+        super().__init__(entry)
 
     async def _async_handle_chat_log(
         self,

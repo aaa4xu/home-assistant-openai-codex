@@ -19,10 +19,12 @@ CONF_LAST_REFRESH = "last_refresh"
 CONF_PROMPT = "prompt"
 CONF_REASONING_EFFORT = "reasoning_effort"
 CONF_REFRESH_TOKEN = "refresh_token"
+CONF_TTS_VOICE = "tts_voice"
 CONF_USER_ID = "chatgpt_user_id"
 CONF_WEB_SEARCH = "web_search"
 
 DEFAULT_NAME = "OpenAI Codex"
+DEFAULT_TTS_NAME = "OpenAI Codex TTS"
 RECOMMENDED_CHAT_MODEL = "gpt-5.4"
 RECOMMENDED_FAST_MODE = False
 RECOMMENDED_REASONING_EFFORT = "medium"
@@ -41,6 +43,73 @@ CODEX_DEVICE_VERIFICATION_URL = f"{CODEX_ISSUER}/codex/device"
 CODEX_DEVICE_REDIRECT_URI = f"{CODEX_ISSUER}/deviceauth/callback"
 CODEX_TOKEN_URL = f"{CODEX_ISSUER}/oauth/token"
 CODEX_BACKEND_BASE_URL = "https://chatgpt.com/backend-api/codex"
+CODEX_REALTIME_BASE_URL = "https://api.openai.com/v1"
+CODEX_REALTIME_MODEL = "gpt-realtime-1.5"
+CODEX_REALTIME_VERSION = "v2"
+CODEX_REALTIME_AUDIO_RATE = 24_000
+CODEX_REALTIME_AUDIO_CHANNELS = 1
+CODEX_REALTIME_SAMPLE_WIDTH_BYTES = 2
+CODEX_REALTIME_CALLS_PATH = "realtime/calls"
+CODEX_REALTIME_WS_PATH = "realtime"
+
+CODEX_TTS_DEFAULT_LANGUAGE = "en"
+CODEX_TTS_SUPPORTED_LANGUAGES = (
+    "ar",
+    "bg",
+    "ca",
+    "cs",
+    "da",
+    "de",
+    "el",
+    "en",
+    "en-GB",
+    "en-US",
+    "es",
+    "es-419",
+    "fi",
+    "fr",
+    "he",
+    "hi",
+    "hr",
+    "hu",
+    "id",
+    "it",
+    "ja",
+    "ko",
+    "nl",
+    "no",
+    "pl",
+    "pt",
+    "pt-BR",
+    "ro",
+    "ru",
+    "sk",
+    "sl",
+    "sr",
+    "sr-Latn",
+    "sv",
+    "th",
+    "tr",
+    "uk",
+    "vi",
+    "zh-CN",
+    "zh-HK",
+    "zh-TW",
+)
+CODEX_TTS_DEFAULT_VOICE = "marin"
+CODEX_TTS_VOICES = (
+    "alloy",
+    "ash",
+    "ballad",
+    "coral",
+    "echo",
+    "sage",
+    "shimmer",
+    "verse",
+    "marin",
+    "cedar",
+)
+CODEX_TTS_SUPPORTED_OPTIONS = ("voice",)
 
 USER_AGENT = "home-assistant-openai-codex/0.1"
 ORIGINATOR = "homeassistant_openai_codex"
