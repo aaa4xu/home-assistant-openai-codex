@@ -28,11 +28,13 @@ buildHomeAssistantComponent rec {
   };
 
   dependencies = with home-assistant.python.pkgs; [
+    aiortc
+    av
     openai
   ];
 
   meta = {
-    description = "OpenAI Codex conversation agent for Home Assistant";
+    description = "OpenAI Codex conversation, STT, and TTS for Home Assistant";
     homepage = "https://github.com/${owner}/home-assistant-openai-codex";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;

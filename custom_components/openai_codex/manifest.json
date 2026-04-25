@@ -8,6 +8,6 @@
   "documentation": "https://github.com/aaa4xu/home-assistant-openai-codex",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "requirements": ["openai>=2.21.0,<3", "aiortc==1.14.0"],
+  "requirements": ["openai>=2.21.0,<3", "aiortc>=1.14.0,<2"],
   "version": "0.1.0"
 }

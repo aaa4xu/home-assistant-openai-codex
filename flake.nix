@@ -102,12 +102,14 @@
                 cfg.package
               ];
 
-              # openai_codex declares conversation as a dependency and uses
-              # assist_pipeline/intent as after_dependencies in manifest.json.
+              # openai_codex declares these voice/assist integrations in
+              # manifest.json dependencies and after_dependencies.
               extraComponents = [
                 "assist_pipeline"
                 "conversation"
                 "intent"
+                "stt"
+                "tts"
               ];
             };
           };
